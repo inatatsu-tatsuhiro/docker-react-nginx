@@ -2,11 +2,9 @@ version: '3'
 services:
     nuxt:
         container_name: nuxt
-        # Dockerfileの場所
         build: ./docker/nuxt
         volumes:
             - ./project:/app/project
-        # コンテナ内部の3000を外部から5000でアクセスする
         ports:
             - 5000:3000
         environment:
@@ -15,6 +13,7 @@ services:
 
     server:
         build: ./docker/server
+        container_name: server
         tty: true
         ports:
             - 8080:8080
@@ -27,6 +26,7 @@ services:
 
     db:
         build: ./docker/db
+        container_name: db
         ports:
             - 3314:3306
         environment:
