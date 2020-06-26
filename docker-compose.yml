@@ -1,15 +1,13 @@
 version: '3'
 services:
-    nuxt:
-        container_name: nuxt
-        build: ./docker/nuxt
+    react:
+        container_name: react
+        build: ./docker/react
         volumes:
-            - ./project:/app/project
+            - ./front:/app
         ports:
-            - 5000:3000
-        environment:
-            - HOST=0.0.0.0
-        command: npm run dev
+            - 3000:3000
+        command: yarn start
 
     server:
         build: ./docker/server
@@ -28,7 +26,7 @@ services:
         build: ./docker/db
         container_name: db
         ports:
-            - 3314:3306
+            - 3306:3306
         environment:
             TZ: 'Asia/Tokyo'
             MYSQL_ROOT_PASSWORD: docker
@@ -39,8 +37,21 @@ services:
             - ./docker/db/mysql_init:/docker-entrypoint-initdb.d
             - ./db:/var/lib/mysql
         command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
-volumes:
-  mysql_data:
         
         
-
+    nginx:
+        image: nginx
+        container_name: nginx
+        ports:
+            - 80:80
+        volumes:
+            - ./front/build:/var/www
+            - ./docker/nginx/:/etc/nginx/conf.d/
+            
+    test-nginx:
+        image: nginx
+        container_name: test-nginx
+        ports:
+            - 81:80
+        volumes:
+            - ./docker/test/:/etc/nginx/conf.d/
