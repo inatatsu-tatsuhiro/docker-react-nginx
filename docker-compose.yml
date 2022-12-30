@@ -1,57 +1,27 @@
-version: '3'
+version: "3"
 services:
-    react:
-        container_name: react
-        build: ./docker/react
-        volumes:
-            - ./front:/app
-        ports:
-            - 3000:3000
-        command: yarn start
+  react:
+    image: node:18
+    volumes:
+      - ./front:/app
+    ports:
+      - 3000:3000
+    working_dir: /app
+    command: yarn start
 
-    server:
-        build: ./docker/server
-        container_name: server
-        tty: true
-        ports:
-            - 8080:8080
-        environment:
-            LANG: ja_JP.UTF-8
-            TZ: Asia/Tokyo
-        volumes:
-            - ./server/:/go/src/github.com/inatatsu-tatsuhiro/server
-            - ./server/:/usr/local/go/src/api
+  nginx:
+    image: nginx
+    container_name: nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./front/build:/var/www
+      - ./docker/nginx/:/etc/nginx/conf.d
 
-    db:
-        build: ./docker/db
-        container_name: db
-        ports:
-            - 3306:3306
-        environment:
-            TZ: 'Asia/Tokyo'
-            MYSQL_ROOT_PASSWORD: docker
-            MYSQL_USER: docker
-            MYSQL_PASSWORD: docker
-        volumes:
-            - ./docker/db/cnf:/etc/mysql/conf.d/my.cnf
-            - ./docker/db/mysql_init:/docker-entrypoint-initdb.d
-            - ./db:/var/lib/mysql
-        command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
-        
-        
-    nginx:
-        image: nginx
-        container_name: nginx
-        ports:
-            - 80:80
-        volumes:
-            - ./front/build:/var/www
-            - ./docker/nginx/:/etc/nginx/conf.d/
-            
-    test-nginx:
-        image: nginx
-        container_name: test-nginx
-        ports:
-            - 81:80
-        volumes:
-            - ./docker/test/:/etc/nginx/conf.d/
+  test-nginx:
+    image: nginx
+    container_name: test-nginx
+    ports:
+      - 81:80
+    volumes:
+      - ./docker/test/:/etc/nginx/conf.d
